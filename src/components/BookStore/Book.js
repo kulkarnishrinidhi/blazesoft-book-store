@@ -17,7 +17,7 @@ function Book({ book, handleDelete, handleEditBook }) {
             <button
               className="btn btn-danger"
               onClick={(e) => {
-                e.preventDefault();
+                e.stopPropagation();
                 handleDelete(book);
               }}
             >
