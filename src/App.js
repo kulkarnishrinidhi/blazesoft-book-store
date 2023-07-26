@@ -1,24 +1,28 @@
-import { useState } from "react";
+import { useCallback, useState, Suspense, lazy } from "react";
 import Book from "./components/BookStore/Book";
 import BookForm from "./components/BookStore/BookForm";
-import { HStack } from "./components/common/Flex";
 import Modal from "./components/common/Modal/Modal";
 import useBookStore from "./components/BookStore/useBookStore";
 import { REASONS } from "./constants/books";
 
+//Lazy loading
+const Header = lazy(() => import("./components/Header/Header"));
+
 function App() {
+  //state to show/hide modal. Using reason property to handle edit/add book
   const [showModal, setShowModal] = useState({ reason: "", open: false });
-  const { bookList, handleAddBook, handleDeleteBook } = useBookStore();
+  //state to store selected book to edit
   const [selectedBook, setSelectedBook] = useState({});
+  const { bookList, handleAddBook, handleDeleteBook } = useBookStore();
 
-  const handleOpenModal = (reason) => {
+  const handleOpenModal = useCallback((reason) => {
     setShowModal({ reason, open: true });
-  };
+  }, []);
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setSelectedBook({});
     setShowModal({ reason: "", open: false });
-  };
+  }, []);
 
   const handleBookSubmit = (newBook) => {
     handleCloseModal();
@@ -32,21 +36,10 @@ function App() {
 
   return (
     <div className="container">
-      <HStack vCentered styleProps={{ justifyContent: "space-between" }}>
-        <h1 className="mt-0">Book Store</h1>
-        <div>
-          <button
-            className="btn btn-info"
-            onClick={() => {
-              handleOpenModal(REASONS.ADD);
-            }}
-          >
-            Add Book
-          </button>
-        </div>
-      </HStack>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Header handleOpenModal={handleOpenModal} />
+      </Suspense>
       <hr className="my-6" />
-
       {bookList.map((book) => (
         <div className="mt-4" key={book.id}>
           <Book
@@ -56,19 +49,20 @@ function App() {
           />
         </div>
       ))}
-
-      <Modal
-        title="Add Book"
-        isOpen={showModal.open}
-        onClose={handleCloseModal}
-      >
-        <BookForm
-          handleAddBook={handleBookSubmit}
-          handleClose={handleCloseModal}
-          reason={showModal.reason}
-          book={selectedBook}
-        />
-      </Modal>
+      {showModal.open && (
+        <Modal
+          title="Add Book"
+          isOpen={showModal.open}
+          onClose={handleCloseModal}
+        >
+          <BookForm
+            handleAddBook={handleBookSubmit}
+            handleClose={handleCloseModal}
+            reason={showModal.reason}
+            book={selectedBook}
+          />
+        </Modal>
+      )}
     </div>
   );
 }
