@@ -1,71 +1,53 @@
 import { useState } from 'react';
-import './App.css';
-import { BOOK_LIST } from './books';
-import Book from './Book';
-import BookForm from './BookForm';
-import { actions } from './store';
-import { useDispatch, useSelector } from 'react-redux';
+import { BOOK_LIST } from './constants/books';
+import Book from './components/BookStore/Book';
+import BookForm from './components/BookStore/BookForm';
+import { HStack } from './components/common/Flex';
+import Modal from './components/common/Modal/Modal';
 
 function App() {
   const [bookList, setBookList] = useState(() => BOOK_LIST)
-  const [showBookForm, setShowBookForm] = useState({ for: '', open: false })
-  const [selectedBook, setSelectedBook] = useState({})
-  const dispatch = useDispatch()
+  const [showModal, setShowModal] = useState(false);
 
-  const counter = useSelector((state) => state.counter)
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
 
-  const handleAddBook = (newBook) => {
-    setBookList([newBook, ...bookList])
-    setShowBookForm({ for: '', open: false })
-  }
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
 
-  const handleDeleteBook = (book) => {
+  const handleDelete = (book) => {
     const newBookList = bookList.filter((b) => b.id !== book.id)
     setBookList(newBookList)
   }
 
-  const handleEditBook = (book) => {
-    setSelectedBook(book)
+  const handleAddBook = (newBook) => {
+    setBookList([newBook, ...bookList])
+    handleOpenModal()
   }
 
   return (
-    <div>
-      <nav>
-        Book Store <h1>Counter: {counter}</h1>
-        <button
-          onClick={
-            () => {
-              dispatch(actions.increment())
-            }
-          }>Increment</button>
-        <button
-          onClick={() => {
-            if (!showBookForm.open) {
-              setShowBookForm({ for: 'add', open: true })
-            } 
-          }}
-        >Add Book</button>
-      </nav>
-      
-      <ul>
-        {
-          bookList.map((book) => (
-            <Book
-              key={book.id}
-              book={book}
-              handleEditBook={handleEditBook}
-              handleDeleteBook={handleDeleteBook}
-            />
-          ))
-        }
-      </ul>
-      {showBookForm.open && (
+    <div className='container'>
+      <HStack vCentered styleProps={{ justifyContent: 'space-between' }}>
+        <h1 className='mt-0'>Book Store</h1>
+        <div>
+          <button className='btn btn-info' onClick={handleOpenModal}>Add Book</button>
+        </div>
+      </HStack>
+      <hr className='my-6' />
+      {
+        bookList.map((book) => <div className='mt-4' key={book.id}>
+          <Book book={book} handleDelete={handleDelete} />
+        </div>)
+      }
+
+      <Modal title='Add Book' isOpen={showModal} onClose={handleCloseModal}>
         <BookForm
           handleAddBook={handleAddBook}
-          handleClose={() => { setShowBookForm(false) }}
-          bookDetails={selectedBook}
-        />)
-      }
+          handleClose={handleCloseModal}
+        />
+      </Modal>
     </div>
   );
 }
