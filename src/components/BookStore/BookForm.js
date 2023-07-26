@@ -9,13 +9,10 @@ const DEFAULT_BOOK_DETAILS = {
     description: ''
 }
 
-
-
 function BookForm({ handleAddBook, handleClose }) {
     const [bookDetails, setBookDetails] = useState(DEFAULT_BOOK_DETAILS)
 
     const handleInputChange = (e) => {
-        console.log(e.target.value)
         setBookDetails({
             ...bookDetails,
             [e.target.name]: e.target.value
@@ -62,7 +59,7 @@ function BookForm({ handleAddBook, handleClose }) {
 
                 <HStack styleProps={{ marginTop: 10, justifyContent: 'center' }}>
                     <input className="btn btn-info" type="submit" />
-                    <button className="btn btn-danger" onClick={handleClose}>Cancel</button>
+                    <button className="btn btn-danger" onClick={() => { handleClose() }}>Cancel</button>
                 </HStack>
             </VStack>
         </form>
