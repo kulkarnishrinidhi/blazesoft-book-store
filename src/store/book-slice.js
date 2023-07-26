@@ -1,6 +1,5 @@
-import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { BOOK_LIST } from "../constants/books";
-import { act } from "react-dom/test-utils";
 
 const bookStoreSlice = createSlice({
   name: "bookStore",
